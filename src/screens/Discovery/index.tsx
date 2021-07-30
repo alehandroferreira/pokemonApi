@@ -1,66 +1,89 @@
 import React, { useState, useEffect } from "react";
+import { FlatList } from "react-native-gesture-handler";
 import { PokemonDetailDTO } from "../../dtos/PokemonDetailDTO";
+import { PokemonsDTO } from "../../dtos/PokemonsDTO";
 import api from "../../services/api";
 import { ResponsePokemonToMapper } from "../../services/mapping/ResponsePokemonToMapper";
 
-import { Container, Pokelist, Text } from "./styles";
+import { Container, Text } from "./styles";
 
 interface Props {
-  data: PokemonDetailDTO;
+  data: { name: string; url: string };
 }
 
 export function Discovery() {
   const [date, setDate] = useState<PokemonDetailDTO[]>([]);
-  const [allsPokemons, setAllsPokemons] = useState();
+  const [allsPokemons, setAllsPokemons] = useState<Props[]>([]);
   const [loading, setLoading] = useState(true);
-  const [nextPage, setNextPage] = useState();
+  const [offset, setOffset] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+
+  async function getAllsPokemons() {
+    try {
+      const url = `pokemon?limit=${itemsPerPage}&offset=${offset}`;
+      const response = await api.get(url);
+      setAllsPokemons([...allsPokemons, ...response.data.results]);
+      return response;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function getAllsPokemons() {
-      try {
-        const url = "pokemon?limit=20";
-        const response = await api.get(url);
-        setAllsPokemons(response.data);
-        return response;
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    async function getOnePokemon(id: number) {
-      try {
-        const url = `/pokemon/${id}`;
-        const response = await api.get(url);
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    }
-
     getAllsPokemons();
+  }, [offset]);
 
-    // const poke = new ResponsePokemonToMapper().build(getAllsPokemons());
-
-    // setDate(poke);
+  useEffect(() => {
+    getAllsPokemons();
   }, []);
 
   return (
-    <Pokelist
-      // numColumns={0}
-      data={date}
-      keyExtractor={(item) => String(item.name)}
-      renderItem={({ item }) => <ListItem data={item} />}
-    />
+    <>
+      {/* <Text>{allsPokemons?.length}</Text> */}
+      <FlatList
+        numColumns={1}
+        data={allsPokemons}
+        keyExtractor={(item) => String(item.name)}
+        renderItem={({ item }) => <ListItem data={item} />}
+        onEndReached={() => {
+          setOffset(offset + itemsPerPage);
+        }}
+      />
+    </>
   );
 }
 
 function ListItem({ data }: Props) {
+  const [colapsed, setColapsed] = useState(true);
+  const [details, setDetails] = useState();
+
+  async function getOnePokemon() {
+    try {
+      const url = `/pokemon/${data.name}`;
+      const response = await api.get(url);
+      setDetails(response.data);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  useEffect(() => {
+    if (!colapsed && !details) {
+      getOnePokemon();
+    }
+  }, [colapsed]);
+
   return (
-    <Container>
-      <Text>{data.image}</Text>
+    <Container
+      onPress={() => {
+        setColapsed(!colapsed);
+      }}
+    >
       <Text>{data.name}</Text>
+      <Text>{data.url}</Text>
+      <>{!colapsed && <Text>{JSON.stringify(details)}</Text>}</>
     </Container>
   );
 }

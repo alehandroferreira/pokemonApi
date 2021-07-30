@@ -1,13 +1,12 @@
 import styled from "styled-components/native";
 
-import { FlatList } from "react-native";
-import { PokemonDetailDTO } from "../../dtos/PokemonDetailDTO";
-
-export const Container = styled.View`
+export const Container = styled.TouchableOpacity`
   padding: 15px;
-  margin-top: 5px;
+  margin-top: 50px;
   border-radius: 25px;
   background-color: ${({ theme }) => theme.colors.background};
+  justify-content: center;
+  align-items: center;
 `;
 
 export const Text = styled.Text`
@@ -15,8 +14,8 @@ export const Text = styled.Text`
   color: ${({ theme }) => theme.colors.title};
 `;
 
-export const Pokelist = styled(
-  FlatList as new () => FlatList<PokemonDetailDTO>
-).attrs({
-  showsVerticalScrollIndicator: false,
-})``;
+// export const Pokelist = styled(
+//   FlatList as new () => FlatList<PokemonsDTO>
+// ).attrs({
+//   showsVerticalScrollIndicator: false,
+// })``;

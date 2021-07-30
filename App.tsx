@@ -1,3 +1,4 @@
+import { StatusBar } from "expo-status-bar";
 import React from "react";
 
 import { ThemeProvider } from "styled-components";
@@ -9,6 +10,7 @@ import { Discovery } from "./src/screens/Discovery/";
 export default function App() {
   return (
     <ThemeProvider theme={theme}>
+      <StatusBar backgroundColor={"black"} />
       <Discovery />
     </ThemeProvider>
   );
