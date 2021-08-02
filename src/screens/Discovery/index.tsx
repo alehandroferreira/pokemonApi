@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { View } from "react-native";
 
 import { FlatList } from "react-native-gesture-handler";
 import { OnePokemonDTO } from "../../dtos/OnePokemonDTO";
@@ -7,7 +8,7 @@ import { PokemonsDTO } from "../../dtos/PokemonsDTO";
 import api from "../../services/api";
 import Utils from "../../utils/Utils";
 
-import { Container, Text, Image, Card } from "./styles";
+import { Container, Text, Image, Card, Stat, Title } from "./styles";
 
 interface Props {
   data: PokemonsDTO;
@@ -78,27 +79,36 @@ function ListItem({ data }: Props) {
           name: detail?.abilities.map((item) => item.ability.name),
         },
       },
-      stats: detail?.stats.map((stats) => ({
-        name: stats.name,
-        base_stat: stats.base_stat,
-      })),
+
+      stats: detail?.stats.map((stats) => {
+        return {
+          name: stats.stat.name,
+          base_stat: stats.base_stat,
+        };
+      }),
     };
 
     return (
       <>
-        <Text>{`Abilities: ${resp.abilities.ability.name}`}</Text>
-        <Text>{`Stats: ${resp.stats
-          ?.map((item) => (
-            <>
-              <Text>
-                {`${item.name} `}
-                <Text>{`${item.base_stat}`}</Text>
-              </Text>
-            </>
-          ))
-          .toString()}`}</Text>
-        <Text>{`Weight: ${resp.weight}`}</Text>
-        <Text>{`Height: ${resp.height}`}</Text>
+        <Title>
+          Abilities: <Text>{resp.abilities.ability.name}</Text>
+        </Title>
+
+        {resp.stats?.map((item) => (
+          <Stat>
+            <Title>{item.name}:</Title>
+            <Text>{item.base_stat}</Text>
+          </Stat>
+        ))}
+
+        <Stat>
+          <Title>Weight:</Title>
+          <Text>{resp.weight}</Text>
+        </Stat>
+        <Stat>
+          <Title>Height:</Title>
+          <Text>{resp.height}</Text>
+        </Stat>
       </>
     );
   }
@@ -115,7 +125,6 @@ function ListItem({ data }: Props) {
         setColapsed(!colapsed);
       }}
     >
-      <Text>{data.name}</Text>
       <Image
         source={{
           uri: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${new Utils().toCoverId(
@@ -123,6 +132,7 @@ function ListItem({ data }: Props) {
           )}.png`,
         }}
       />
+      <Title>{data.name}</Title>
       <>{!colapsed && pokemomDetails(details)}</>
     </Card>
   );

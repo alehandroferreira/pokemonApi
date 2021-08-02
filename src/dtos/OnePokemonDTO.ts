@@ -8,7 +8,7 @@ export interface OnePokemonDTO {
   id: number;
   name: string;
   stats: {
-    name: string;
+    stat: { name: string };
     base_stat: number;
   }[];
   weight: number;
